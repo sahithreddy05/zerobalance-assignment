@@ -31,7 +31,7 @@ async function updaterating(req, res) {
             })
         } else {
             res.status(500).json({
-                message:"invalid rating"
+                message: "invalid rating"
             })
         }
     } catch (err) {
@@ -44,8 +44,6 @@ async function updaterating(req, res) {
 async function createMovies(req, res) {
 
     try {
-        // let movie = await FavMovieModel.find({ movies: req.body.movies });
-        // if (!movie) {
         let movie = await FavMovieModel.create({
             movies: req.body.movies,
             rating: req.body.rating,
@@ -73,16 +71,31 @@ async function createMovies(req, res) {
 }
 
 async function getMovies(req, res) {
-    let {search} = req.query 
+    let { search } = req.query
     console.log(search);
     try {
-        if(req.query.search){
-            let searchedResult = await FavMovieModel.find({movies:{$regex:search,$options:'i'}});
+        if (req.query.search) {
+            // let searchedResult = await FavMovieModel.find(
+            // {movies:{$regex: search, $options: 'i'}});
+            let finalAvg = await FavMovieModel.aggregate([
+                { $match: { movies: { $regex: search, $options: 'i' } } },
 
+                {
+                    $project: {
+                        _id: 0, ratings: {
+                            $slice: ['$rating', -1]
+                        }
+                    },
+                },
+            ])
+            var sum = 0;
+            for (var key in finalAvg) {
+                   sum +=finalAvg[key].ratings[0];
+            }
+            finalAvgrating = sum/finalAvg.length
             return res.json({
-                // TODO
-                message:"search result",
-                searchDone:searchedResult
+                message: `search result for ${search}`,
+                finalAvg: finalAvgrating,
             })
         }
         let movies = await FavMovieModel.find();
