@@ -6,10 +6,11 @@ const userRouter = require('./routes/userRoute');
 const moviesRouter = require('./routes/moviesRouter');
 const app = express();
 const {protectRoute} = require('./routes/utilfns')
+const { SESSION_SECRET_KEY} = require('./secrets');
 
 app.use(express.json());
 app.use(session({
-    secret: 'r8q,+&1LM3)CD*zAGpx1xm{NeQhc;#',
+    secret:  SESSION_SECRET_KEY,
     resave: false,
     saveUninitialized: true,
     cookie: { maxAge: 60 * 60 * 1000 } // 1 hour
